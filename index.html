@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Wykres Polarny Rybczo</title>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #1a1a2e;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #chart-container {
+            width: 95%;
+            height: 80%;
+            background-color: #161625;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        h1 {
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+        p {
+            color: #a0a0ba;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Wizualizacja Poziomów Ryb</h1>
+    <p>Najedź kursorem na punkt, aby zobaczyć szczegóły gatunku.</p>
+
+    <div id="chart-container">
+        <div id="plotly-chart"></div>
+    </div>
+
+    <script>
+        // Dane przesłane przez użytkownika
+        const rawData = [
+        {nazwa: 'Murena olbrzymia', nazwa_lacinska: 'Gymnothorax javanicus', tier: 8,cechy: 'drapieżna', srednia_dlugosc: 250, max_dlugosc: 300, sila: 63439, kat: 0.565600995792607,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Granik goliat', nazwa_lacinska: 'Epinephelus itajara', tier: 8,cechy: 'drapieżny', srednia_dlugosc: 200, max_dlugosc: 250, sila: 40754, kat: 0.505107701091703,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Skrzydlica zebra', nazwa_lacinska: 'Dendrochirus zebra', tier: 2,cechy: 'jadowita', srednia_dlugosc: 15, max_dlugosc: 18, sila: 257, kat: 0.823070189341245,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Mandaryn', nazwa_lacinska: 'Synchiropus picturatus', tier: 1,cechy: 'toksyczny śluz', srednia_dlugosc: 6, max_dlugosc: 8, sila: 48, kat: 0.76072170434207,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Lucjan czerwony', nazwa_lacinska: 'Lutjanus campechanus', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 150, sila: 6809, kat: 0.301779701289563,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Babka koralowa', nazwa_lacinska: 'Gobiodon okinawae', tier: 1,cechy: 'rafowa', srednia_dlugosc: 3.5, max_dlugosc: 5, sila: 19, kat: 0.60840435307035,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Skrzydlica ognista', nazwa_lacinska: 'Pterois volitans', tier: 3,cechy: 'jadowita', srednia_dlugosc: 30, max_dlugosc: 38, sila: 979, kat: 0.462913315294253,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Ryba piła', nazwa_lacinska: 'Pristis pristis', tier: 11,cechy: 'drapieżna', srednia_dlugosc: 400, max_dlugosc: 700, sila: 162595, kat: 0.779780644603551,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Błazenek ocellaris', nazwa_lacinska: 'Amphiprion ocellaris', tier: 1,cechy: 'rafowa symbioza', srednia_dlugosc: 8, max_dlugosc: 11, sila: 82, kat: 0.556953307235518,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Pokolc żółty', nazwa_lacinska: 'Zebrasoma flavescens', tier: 2,cechy: 'roślinożerna', srednia_dlugosc: 20, max_dlugosc: 25, sila: 448, kat: 0.157210797793135,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Skrzydlica', nazwa_lacinska: 'Pterois volitans', tier: 3,cechy: 'jadowita', srednia_dlugosc: 30, max_dlugosc: 38, sila: 979, kat: 0.495582916058885,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Rekin rafowy', nazwa_lacinska: 'Carcharhinus amblyrhynchos', tier: 7,cechy: 'drapieżny', srednia_dlugosc: 150, max_dlugosc: 180, sila: 23009, kat: 0.0915202564578405,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Papugoryba niebieska', nazwa_lacinska: 'Scarus coeruleus', tier: 5,cechy: 'roślinożerna', srednia_dlugosc: 60, max_dlugosc: 120, sila: 3913, kat: 0.196272641776136,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Murena zebrowa', nazwa_lacinska: 'Gymnomuraena zebra', tier: 6,cechy: 'drapieżna', srednia_dlugosc: 100, max_dlugosc: 150, sila: 10409, kat: 0.191497374885386,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Pokolc królewski', nazwa_lacinska: 'Zebrasoma xanthurum', tier: 3,cechy: 'roślinożerna', srednia_dlugosc: 25, max_dlugosc: 30, sila: 684, kat: 0.443342094908592,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Manta mała', nazwa_lacinska: 'Mobula alfredi', tier: 10,cechy: 'filtrator', srednia_dlugosc: 350, max_dlugosc: 500, sila: 124233, kat: 0.285324393355423,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Idol mauretański', nazwa_lacinska: 'Zanclus cornutus', tier: 3,cechy: 'rafowa', srednia_dlugosc: 23, max_dlugosc: 25, sila: 577, kat: 0.994290881049901,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Rekin rafowy szary', nazwa_lacinska: 'Carcharhinus amblyrhynchos', tier: 7,cechy: 'drapieżny', srednia_dlugosc: 160, max_dlugosc: 180, sila: 26109, kat: 0.305560645025403,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Granik olbrzymi', nazwa_lacinska: 'Epinephelus lanceolatus', tier: 8,cechy: 'drapieżny', srednia_dlugosc: 200, max_dlugosc: 270, sila: 40827, kat: 0.775044822885695,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Manta pospolita', nazwa_lacinska: 'Mobula alfredi', tier: 10,cechy: 'filtrator', srednia_dlugosc: 350, max_dlugosc: 500, sila: 124233, kat: 0.715776499802579,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Konik morski pigmejski', nazwa_lacinska: 'Hippocampus bargibanti', tier: 1,cechy: 'kamuflaż', srednia_dlugosc: 3.5, max_dlugosc: 3.5, sila: 17, kat: 0.953909594094355,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Mandaryn wspaniały', nazwa_lacinska: 'Synchiropus splendidus', tier: 1,cechy: 'toksyczny śluz', srednia_dlugosc: 6, max_dlugosc: 8, sila: 48, kat: 1.01813566482168,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Rekin cytrynowy', nazwa_lacinska: 'Negaprion brevirostris', tier: 8,cechy: 'drapieżny', srednia_dlugosc: 200, max_dlugosc: 340, sila: 41091, kat: 0.12160314737484,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Napoleon wrasse', nazwa_lacinska: 'Cheilinus undulatus', tier: 7,cechy: 'rafowa drapieżna', srednia_dlugosc: 180, max_dlugosc: 230, sila: 33082, kat: 0.709733263572673,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Babka karłowata', nazwa_lacinska: 'Trimma cana', tier: 1,cechy: 'rafowa', srednia_dlugosc: 2.5, max_dlugosc: 3.5, sila: 11, kat: 0.926608789453175,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Błazenek percula', nazwa_lacinska: 'Amphiprion percula', tier: 1,cechy: 'rafowa symbioza', srednia_dlugosc: 8, max_dlugosc: 11, sila: 82, kat: 0.67610888199482,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Konik morski denise', nazwa_lacinska: 'Hippocampus denise', tier: 1,cechy: 'kamuflaż', srednia_dlugosc: 3, max_dlugosc: 4, sila: 14, kat: 0.547486891024979,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Kardynałek Banggai', nazwa_lacinska: 'Pterapogon kauderni', tier: 1,cechy: 'rafowa', srednia_dlugosc: 7, max_dlugosc: 8, sila: 61, kat: 0.66788464068203,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Lucjan złoty', nazwa_lacinska: 'Lutjanus argentimaculatus', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 70, max_dlugosc: 120, sila: 5213, kat: 0.0907077189505151,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Płaszczka orla', nazwa_lacinska: 'Aetobatus narinari', tier: 8,cechy: 'jadowita kolce', srednia_dlugosc: 200, max_dlugosc: 330, sila: 41052, kat: 0.286733166267007,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Murena zielona', nazwa_lacinska: 'Gymnothorax funebris', tier: 8,cechy: 'drapieżna', srednia_dlugosc: 200, max_dlugosc: 240, sila: 40718, kat: 0.741773415132829,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Błazenek', nazwa_lacinska: 'Amphiprion ocellaris', tier: 1,cechy: 'rafowa', srednia_dlugosc: 8, max_dlugosc: 11, sila: 82, kat: 0.179657007693872,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Skorpena karłowata', nazwa_lacinska: 'Scorpaenodes littoralis', tier: 2,cechy: 'jadowita', srednia_dlugosc: 10, max_dlugosc: 12, sila: 120, kat: 0.897925853738239,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Papugoryba zielona', nazwa_lacinska: 'Scarus frenatus', tier: 4,cechy: 'roślinożerna', srednia_dlugosc: 35, max_dlugosc: 60, sila: 1361, kat: 0.56981596164707,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Babka neonowa', nazwa_lacinska: 'Eviota pellucida', tier: 1,cechy: 'rafowa', srednia_dlugosc: 3, max_dlugosc: 4, sila: 14, kat: 1.04634840920195,Strefa: 'Rafa koralowa'},
+        {nazwa: 'Łosoś atlantycki', nazwa_lacinska: 'Salmo salar', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 150, sila: 6809, kat: 1.1929175570071,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Sardela', nazwa_lacinska: 'Engraulis encrasicolus', tier: 2,cechy: 'ławicowa', srednia_dlugosc: 15, max_dlugosc: 20, sila: 261, kat: 1.43233190977371,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Rekin lamparci', nazwa_lacinska: 'Triakis semifasciata', tier: 7,cechy: 'drapieżny', srednia_dlugosc: 120, max_dlugosc: 200, sila: 14977, kat: 1.96567342119715,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Płaszczka elektryczna', nazwa_lacinska: 'Torpedo marmorata', tier: 5,cechy: 'elektryczna', srednia_dlugosc: 60, max_dlugosc: 100, sila: 3851, kat: 1.91964631590197,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Makrela', nazwa_lacinska: 'Scomber scombrus', tier: 3,cechy: 'pelagiczna', srednia_dlugosc: 30, max_dlugosc: 60, sila: 1036, kat: 2.05097112711036,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Żabnica', nazwa_lacinska: 'Lophius piscatorius', tier: 6,cechy: 'drapieżna denna', srednia_dlugosc: 60, max_dlugosc: 200, sila: 4177, kat: 1.29206194736574,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Sola', nazwa_lacinska: 'Solea solea', tier: 4,cechy: 'denna', srednia_dlugosc: 35, max_dlugosc: 70, sila: 1389, kat: 1.13701240270338,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Konik morski', nazwa_lacinska: 'Hippocampus hippocampus', tier: 2,cechy: 'kamuflaż', srednia_dlugosc: 14, max_dlugosc: 16, sila: 224, kat: 1.91170988126792,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Makrela atlantycka', nazwa_lacinska: 'Scomber scombrus', tier: 3,cechy: 'pelagiczna', srednia_dlugosc: 30, max_dlugosc: 60, sila: 1036, kat: 1.06418914592906,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Flądra', nazwa_lacinska: 'Platichthys flesus', tier: 4,cechy: 'denna', srednia_dlugosc: 40, max_dlugosc: 60, sila: 1736, kat: 1.56556091751502,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Rekin anioł', nazwa_lacinska: 'Squatina squatina', tier: 7,cechy: 'denna drapieżna', srednia_dlugosc: 120, max_dlugosc: 240, sila: 15118, kat: 1.09546495151572,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Sardela europejska', nazwa_lacinska: 'Engraulis encrasicolus', tier: 2,cechy: 'ławicowa', srednia_dlugosc: 15, max_dlugosc: 20, sila: 261, kat: 1.47390132326352,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Barrakuda', nazwa_lacinska: 'Sphyraena sphyraena', tier: 5,cechy: 'drapieżna', srednia_dlugosc: 70, max_dlugosc: 165, sila: 5358, kat: 2.00485777541189,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Śledź atlantycki', nazwa_lacinska: 'Clupea harengus', tier: 3,cechy: 'ławicowa', srednia_dlugosc: 30, max_dlugosc: 45, sila: 996, kat: 1.94127684068801,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Płaszczka zwyczajna', nazwa_lacinska: 'Dasyatis pastinaca', tier: 5,cechy: 'jadowita', srednia_dlugosc: 60, max_dlugosc: 140, sila: 3976, kat: 1.86142273992454,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Dorsz', nazwa_lacinska: 'Gadus morhua', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 70, max_dlugosc: 150, sila: 5309, kat: 1.99305172167534,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Śledź', nazwa_lacinska: 'Clupea harengus', tier: 3,cechy: 'ławicowa', srednia_dlugosc: 30, max_dlugosc: 45, sila: 996, kat: 1.59022751923891,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Iglicznia morska', nazwa_lacinska: 'Syngnathus acus', tier: 2,cechy: 'wydłużona', srednia_dlugosc: 15, max_dlugosc: 35, sila: 296, kat: 1.83577367760037,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Belona', nazwa_lacinska: 'Belone belone', tier: 5,cechy: 'drapieżna', srednia_dlugosc: 60, max_dlugosc: 100, sila: 3851, kat: 1.75262126421437,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Morszczuk', nazwa_lacinska: 'Merluccius merluccius', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 60, max_dlugosc: 140, sila: 3976, kat: 2.03522576711438,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Rekin piaskowy', nazwa_lacinska: 'Carcharias taurus', tier: 8,cechy: 'drapieżny', srednia_dlugosc: 220, max_dlugosc: 320, sila: 49414, kat: 1.09721096675739,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Skorpena czerwona', nazwa_lacinska: 'Scorpaena scrofa', tier: 3,cechy: 'jadowita', srednia_dlugosc: 25, max_dlugosc: 50, sila: 734, kat: 1.0666001911303,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Turbot', nazwa_lacinska: 'Scophthalmus maximus', tier: 5,cechy: 'denna drapieżna', srednia_dlugosc: 70, max_dlugosc: 100, sila: 5151, kat: 2.00837151273491,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Płaszczka ogonowa', nazwa_lacinska: 'Dasyatis pastinaca', tier: 5,cechy: 'jadowita', srednia_dlugosc: 60, max_dlugosc: 140, sila: 3976, kat: 1.4605520383613,Strefa: 'Morza umiarkowane'},
+        {nazwa: 'Płaszczka rzeczna', nazwa_lacinska: 'Potamotrygon motoro', tier: 4,cechy: 'jadowita kolce', srednia_dlugosc: 40, max_dlugosc: 60, sila: 1736, kat: 3.1100971333664,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Szpilak wielopłetwy', nazwa_lacinska: 'Polypterus bichir', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 60, max_dlugosc: 80, sila: 3792, kat: 2.76472135722959,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Sum afrykański', nazwa_lacinska: 'Clarias gariepinus', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 150, sila: 6809, kat: 2.7375598941671,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Sum czerwonopłetwy', nazwa_lacinska: 'Phractocephalus hemioliopterus', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 120, sila: 6713, kat: 2.11618056641874,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Piranha czerwona', nazwa_lacinska: 'Pygocentrus nattereri', tier: 3,cechy: 'drapieżna', srednia_dlugosc: 25, max_dlugosc: 35, sila: 696, kat: 2.86121824351066,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Piranha czarna', nazwa_lacinska: 'Serrasalmus rhombeus', tier: 3,cechy: 'drapieżna', srednia_dlugosc: 30, max_dlugosc: 40, sila: 984, kat: 2.92605801113968,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Sum rzek Amazonii', nazwa_lacinska: 'Zungaro zungaro', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 150, sila: 6809, kat: 2.22636808224876,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Neon innesa', nazwa_lacinska: 'Paracheirodon innesi', tier: 1,cechy: 'ławicowa', srednia_dlugosc: 2, max_dlugosc: 4, sila: 9, kat: 2.19290755318658,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Tetra kongijska', nazwa_lacinska: 'Phenacogrammus interruptus', tier: 1,cechy: 'ławicowa', srednia_dlugosc: 6, max_dlugosc: 8, sila: 48, kat: 2.25932204998356,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Pleco zwykłe', nazwa_lacinska: 'Pterygoplichthys pardalis', tier: 3,cechy: 'denna', srednia_dlugosc: 30, max_dlugosc: 50, sila: 1009, kat: 2.79489584715189,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Tetra neonowa zielona', nazwa_lacinska: 'Paracheirodon simulans', tier: 0,cechy: 'ławicowa', srednia_dlugosc: 2, max_dlugosc: 3, sila: 8, kat: 2.52157880533284,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Kirysek Corydoras paleatus', nazwa_lacinska: 'Corydoras paleatus', tier: 1,cechy: 'denna', srednia_dlugosc: 6, max_dlugosc: 7, sila: 46, kat: 2.94960885994351,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Płaszczka rzeczna czarna', nazwa_lacinska: 'Potamotrygon leopoldi', tier: 3,cechy: 'jadowita', srednia_dlugosc: 35, max_dlugosc: 50, sila: 1334, kat: 2.17871650802654,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Pielęgnica zebra', nazwa_lacinska: 'Amatitlania nigrofasciata', tier: 2,cechy: 'terytorialna', srednia_dlugosc: 10, max_dlugosc: 15, sila: 126, kat: 2.3473958278146,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Okoń nilowy młody', nazwa_lacinska: 'Lates niloticus', tier: 3,cechy: 'drapieżny', srednia_dlugosc: 30, max_dlugosc: 60, sila: 1036, kat: 2.80826643439277,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Arapaima gigantyczna', nazwa_lacinska: 'Arapaima gigas', tier: 8,cechy: 'drapieżny', srednia_dlugosc: 250, max_dlugosc: 300, sila: 63439, kat: 2.15723615565764,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Neon czerwony', nazwa_lacinska: 'Paracheirodon axelrodi', tier: 1,cechy: 'ławicowa', srednia_dlugosc: 3, max_dlugosc: 5, sila: 16, kat: 2.19365905899325,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Kirysek spiżowy', nazwa_lacinska: 'Corydoras aeneus', tier: 1,cechy: 'denna', srednia_dlugosc: 6, max_dlugosc: 7, sila: 46, kat: 2.51141511929513,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Sum afrykański gigant', nazwa_lacinska: 'Clarias gariepinus', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 120, max_dlugosc: 170, sila: 14875, kat: 3.04617180685306,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Cichla temensis', nazwa_lacinska: 'Cichla temensis', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 60, max_dlugosc: 100, sila: 3851, kat: 2.8277270949541,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Arowana srebrna', nazwa_lacinska: 'Osteoglossum bicirrhosum', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 90, max_dlugosc: 120, sila: 8413, kat: 2.94617134650212,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Dyskowiec niebieski', nazwa_lacinska: 'Symphysodon haraldi', tier: 2,cechy: 'rafowa słodkowodna', srednia_dlugosc: 15, max_dlugosc: 20, sila: 261, kat: 2.97842528970093,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Sum afrykański czarny', nazwa_lacinska: 'Clarias gariepinus', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 90, max_dlugosc: 170, sila: 8575, kat: 3.13504352667881,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Pirarucu Amazonii', nazwa_lacinska: 'Arapaima gigas', tier: 8,cechy: 'drapieżny', srednia_dlugosc: 250, max_dlugosc: 300, sila: 63439, kat: 2.52479252384678,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Mieczyk', nazwa_lacinska: 'Xiphophorus helleri', tier: 1,cechy: 'wszystkożerna', srednia_dlugosc: 8, max_dlugosc: 12, sila: 84, kat: 2.6945564908701,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Sum tygrysi', nazwa_lacinska: 'Pseudoplatystoma fasciatum', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 70, max_dlugosc: 100, sila: 5151, kat: 2.41635539948188,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Platka', nazwa_lacinska: 'Xiphophorus maculatus', tier: 1,cechy: 'wszystkożerna', srednia_dlugosc: 5, max_dlugosc: 7, sila: 35, kat: 2.37557142486974,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Zbrojnik niebieski', nazwa_lacinska: 'Ancistrus dolichopterus', tier: 2,cechy: 'denna glonożerna', srednia_dlugosc: 10, max_dlugosc: 15, sila: 126, kat: 2.12379864890613,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Arowana australijska', nazwa_lacinska: 'Scleropages jardinii', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 90, sila: 6621, kat: 2.38645114152436,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Okoń nilowy gigant', nazwa_lacinska: 'Lates niloticus', tier: 7,cechy: 'drapieżny', srednia_dlugosc: 120, max_dlugosc: 200, sila: 14977, kat: 2.38079975629555,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Okoń nilowy', nazwa_lacinska: 'Lates niloticus', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 200, sila: 6977, kat: 2.12772151152856,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Sum rekinowy', nazwa_lacinska: 'Pangasius sanitwongsei', tier: 7,cechy: 'drapieżny', srednia_dlugosc: 100, max_dlugosc: 300, sila: 10939, kat: 2.3806148935728,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Arowana azjatycka', nazwa_lacinska: 'Scleropages formosus', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 90, sila: 6621, kat: 2.92222580056474,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Pielęgnica flowerhorn', nazwa_lacinska: 'hybryda Cichlidae', tier: 3,cechy: 'drapieżna', srednia_dlugosc: 30, max_dlugosc: 40, sila: 984, kat: 2.52207338047992,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Sum afrykański rzeki', nazwa_lacinska: 'Nileus sp. (regional)', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 60, max_dlugosc: 120, sila: 3913, kat: 2.63338185878811,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Skalar', nazwa_lacinska: 'Pterophyllum scalare', tier: 2,cechy: 'rafowa słodkowodna', srednia_dlugosc: 12, max_dlugosc: 15, sila: 170, kat: 2.30916998342968,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Dyskowiec zielony', nazwa_lacinska: 'Symphysodon aequifasciatus', tier: 2,cechy: 'rafowa słodkowodna', srednia_dlugosc: 15, max_dlugosc: 20, sila: 261, kat: 2.25256419166835,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Bagre Mekongu', nazwa_lacinska: 'Pangasianodon gigas', tier: 8,cechy: 'denna', srednia_dlugosc: 250, max_dlugosc: 300, sila: 63439, kat: 2.79551366485871,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Sumik szklisty', nazwa_lacinska: 'Kryptopterus vitreolus', tier: 1,cechy: 'ławicowa', srednia_dlugosc: 5, max_dlugosc: 6, sila: 34, kat: 2.79262046155552,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Piraruku', nazwa_lacinska: 'Arapaima gigas', tier: 8,cechy: 'drapieżny', srednia_dlugosc: 200, max_dlugosc: 300, sila: 40939, kat: 2.38334669303973,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Cichla ocellaris', nazwa_lacinska: 'Cichla ocellaris', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 40, max_dlugosc: 70, sila: 1764, kat: 2.83507421347457,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Suma afrykańska albinos', nazwa_lacinska: 'Clarias gariepinus (albino)', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 150, sila: 6809, kat: 2.96641180315681,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Pielęgnica pawiooka', nazwa_lacinska: 'Astronotus ocellatus', tier: 3,cechy: 'drapieżna', srednia_dlugosc: 25, max_dlugosc: 35, sila: 696, kat: 2.97174731673122,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Szpilak afrykański', nazwa_lacinska: 'Polypterus senegalus', tier: 3,cechy: 'drapieżny', srednia_dlugosc: 30, max_dlugosc: 40, sila: 984, kat: 3.05193069984451,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Paku', nazwa_lacinska: 'Colossoma macropomum', tier: 5,cechy: 'wszystkożerna', srednia_dlugosc: 70, max_dlugosc: 90, sila: 5121, kat: 2.42195752599845,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Tilapia', nazwa_lacinska: 'Oreochromis niloticus', tier: 3,cechy: 'wszystkożerna', srednia_dlugosc: 30, max_dlugosc: 60, sila: 1036, kat: 3.07025965056666,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Gupik', nazwa_lacinska: 'Poecilia reticulata', tier: 1,cechy: 'ławicowa', srednia_dlugosc: 3, max_dlugosc: 6, sila: 18, kat: 2.54909584800023,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Brzanka sumatrzańska', nazwa_lacinska: 'Puntigrus tetrazona', tier: 1,cechy: 'ławicowa', srednia_dlugosc: 6, max_dlugosc: 7, sila: 46, kat: 3.10958112282134,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Molinezja', nazwa_lacinska: 'Poecilia sphenops', tier: 1,cechy: 'wszystkożerna', srednia_dlugosc: 6, max_dlugosc: 10, sila: 52, kat: 2.30055029385672,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Otosiek', nazwa_lacinska: 'Otos cinctus', tier: 1,cechy: 'denna', srednia_dlugosc: 4, max_dlugosc: 5, sila: 23, kat: 2.72228230485487,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Srebrny sum filipiński', nazwa_lacinska: 'Pangasius hypophthalmus', tier: 5,cechy: 'filtrator', srednia_dlugosc: 60, max_dlugosc: 100, sila: 3851, kat: 3.10907176203677,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Tetra czarna', nazwa_lacinska: 'Gymnocorymbus ternetzi', tier: 1,cechy: 'ławicowa', srednia_dlugosc: 6, max_dlugosc: 7, sila: 46, kat: 2.42730425958482,Strefa: 'Strefa tropikalna'},
+        {nazwa: 'Rekin megamouth', nazwa_lacinska: 'Megachasma pelagios', tier: 12,cechy: 'filtrator głębinowy', srednia_dlugosc: 500, max_dlugosc: 700, sila: 252595, kat: 4.57187081851272,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Marlin pasiasty', nazwa_lacinska: 'Kajikia audax', tier: 9,cechy: 'pelagiczna', srednia_dlugosc: 200, max_dlugosc: 420, sila: 41406, kat: 5.116859593059,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Ostrobok', nazwa_lacinska: 'Trachurus mediterraneus', tier: 4,cechy: 'pelagiczna', srednia_dlugosc: 40, max_dlugosc: 60, sila: 1736, kat: 4.99002977344524,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Barrakuda', nazwa_lacinska: 'Sphyraena barracuda', tier: 7,cechy: 'drapieżna', srednia_dlugosc: 120, max_dlugosc: 200, sila: 14977, kat: 4.78720691927839,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Tuńczyk biały', nazwa_lacinska: 'Thunnus alalunga', tier: 6,cechy: 'pelagiczna', srednia_dlugosc: 100, max_dlugosc: 140, sila: 10376, kat: 4.30051274162892,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Żarłacz biały', nazwa_lacinska: 'Carcharodon carcharias', tier: 11,cechy: 'drapieżny', srednia_dlugosc: 450, max_dlugosc: 650, sila: 204874, kat: 4.69535650989145,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Rekin tygrysi', nazwa_lacinska: 'Galeocerdo cuvier', tier: 10,cechy: 'drapieżny', srednia_dlugosc: 350, max_dlugosc: 550, sila: 124443, kat: 4.88570132838253,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Marlin czarny', nazwa_lacinska: 'Istiompax indica', tier: 10,cechy: 'pelagiczna', srednia_dlugosc: 300, max_dlugosc: 460, sila: 91568, kat: 5.01113454971056,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Marlin niebieski', nazwa_lacinska: 'Makaira nigricans', tier: 10,cechy: 'pelagiczna', srednia_dlugosc: 300, max_dlugosc: 500, sila: 91733, kat: 4.54729370537728,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Barrakuda europejska', nazwa_lacinska: 'Sphyraena sphyraena', tier: 5,cechy: 'drapieżna', srednia_dlugosc: 70, max_dlugosc: 165, sila: 5358, kat: 4.53624977072101,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Manta', nazwa_lacinska: 'Mobula birostris', tier: 12,cechy: 'filtrator', srednia_dlugosc: 450, max_dlugosc: 700, sila: 205095, kat: 4.98503975128256,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Tuńczyk czarnopłetwy', nazwa_lacinska: 'Thunnus atlanticus', tier: 5,cechy: 'pelagiczna', srednia_dlugosc: 80, max_dlugosc: 110, sila: 6682, kat: 5.01297287109008,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Rekin olbrzymi', nazwa_lacinska: 'Cetorhinus maximus', tier: 14,cechy: 'filtrator', srednia_dlugosc: 800, max_dlugosc: 1000, sila: 643981, kat: 4.29371236113905,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Żaglica', nazwa_lacinska: 'Istiophorus platypterus', tier: 9,cechy: 'pelagiczna', srednia_dlugosc: 240, max_dlugosc: 340, sila: 58691, kat: 4.41633153870977,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Ostrobok pospolity', nazwa_lacinska: 'Trachurus trachurus', tier: 4,cechy: 'pelagiczna ławicowa', srednia_dlugosc: 45, max_dlugosc: 70, sila: 2189, kat: 4.77467838437525,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Rekin młot', nazwa_lacinska: 'Sphyrna zygaena', tier: 9,cechy: 'drapieżny', srednia_dlugosc: 250, max_dlugosc: 400, sila: 63826, kat: 4.33043777374253,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Płaszczka manta', nazwa_lacinska: 'Mobula birostris', tier: 12,cechy: 'filtrator', srednia_dlugosc: 500, max_dlugosc: 700, sila: 252595, kat: 4.71203683779091,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Rekin wielorybi', nazwa_lacinska: 'Rhincodon typus', tier: 15,cechy: 'filtrator', srednia_dlugosc: 900, max_dlugosc: 1200, sila: 814955, kat: 4.44869067631058,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Makrela królewska', nazwa_lacinska: 'Scomberomorus cavalla', tier: 7,cechy: 'drapieżna pelagiczna', srednia_dlugosc: 140, max_dlugosc: 200, sila: 20177, kat: 5.11938640804922,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Tuńczyk błękitnopłetwy', nazwa_lacinska: 'Thunnus thynnus', tier: 8,cechy: 'pelagiczna', srednia_dlugosc: 250, max_dlugosc: 300, sila: 63439, kat: 4.53960913439251,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Tuńczyk bonito', nazwa_lacinska: 'Katsuwonus pelamis', tier: 5,cechy: 'pelagiczna', srednia_dlugosc: 60, max_dlugosc: 100, sila: 3851, kat: 4.91103958808819,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Makrela japońska', nazwa_lacinska: 'Scomber japonicus', tier: 4,cechy: 'pelagiczna', srednia_dlugosc: 35, max_dlugosc: 65, sila: 1375, kat: 4.80453486648864,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Barakuda', nazwa_lacinska: 'Sphyraena sphyraena', tier: 6,cechy: 'drapieżna', srednia_dlugosc: 80, max_dlugosc: 160, sila: 6842, kat: 4.45312901928511,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Makrela hiszpańska', nazwa_lacinska: 'Scomberomorus maculatus', tier: 5,cechy: 'drapieżna', srednia_dlugosc: 60, max_dlugosc: 90, sila: 3821, kat: 5.01922545734581,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Tuńczyk żółtopłetwy', nazwa_lacinska: 'Thunnus albacares', tier: 7,cechy: 'pelagiczna', srednia_dlugosc: 150, max_dlugosc: 239, sila: 23215, kat: 4.86601561952861,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Miecznik', nazwa_lacinska: 'Xiphias gladius', tier: 9,cechy: 'pelagiczna', srednia_dlugosc: 250, max_dlugosc: 455, sila: 64047, kat: 5.1954947625813,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Trevally', nazwa_lacinska: 'Caranx ignobilis', tier: 6,cechy: 'drapieżna pelagiczna', srednia_dlugosc: 90, max_dlugosc: 180, sila: 8609, kat: 5.05682828959844,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Marlin biały', nazwa_lacinska: 'Kajikia albida', tier: 7,cechy: 'pelagiczna', srednia_dlugosc: 150, max_dlugosc: 280, sila: 23364, kat: 4.69637131521539,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Rekin biały', nazwa_lacinska: 'Carcharodon carcharias', tier: 11,cechy: 'drapieżny', srednia_dlugosc: 450, max_dlugosc: 650, sila: 204874, kat: 4.25775303115866,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Ostrobok śródziemnomorski', nazwa_lacinska: 'Trachurus mediterraneus', tier: 4,cechy: 'pelagiczna', srednia_dlugosc: 40, max_dlugosc: 60, sila: 1736, kat: 5.11205667957787,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Bonito', nazwa_lacinska: 'Sarda sarda', tier: 4,cechy: 'pelagiczna drapieżna', srednia_dlugosc: 60, max_dlugosc: 80, sila: 3792, kat: 4.50724053635166,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Rekin oceaniczny', nazwa_lacinska: 'Carcharhinus longimanus', tier: 8,cechy: 'drapieżny', srednia_dlugosc: 180, max_dlugosc: 395, sila: 33706, kat: 4.8346140142709,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Ostrobok żółtopłetwy', nazwa_lacinska: 'Trachurus mediterraneus', tier: 4,cechy: 'pelagiczna', srednia_dlugosc: 40, max_dlugosc: 60, sila: 1736, kat: 4.75956913439328,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Tuńczyk albacore', nazwa_lacinska: 'Thunnus alalunga', tier: 6,cechy: 'pelagiczna', srednia_dlugosc: 100, max_dlugosc: 140, sila: 10376, kat: 4.61978932555194,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Tuńczyk wielkooki', nazwa_lacinska: 'Thunnus obesus', tier: 7,cechy: 'pelagiczna', srednia_dlugosc: 120, max_dlugosc: 250, sila: 15154, kat: 4.20001796610404,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Barrakuda wielka', nazwa_lacinska: 'Sphyraena barracuda', tier: 7,cechy: 'drapieżna', srednia_dlugosc: 120, max_dlugosc: 200, sila: 14977, kat: 5.21751266477609,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Rekin młot wielki', nazwa_lacinska: 'Sphyrna mokarran', tier: 11,cechy: 'drapieżny', srednia_dlugosc: 350, max_dlugosc: 610, sila: 124700, kat: 5.01603061947772,Strefa: 'Ocean otwarty'},
+        {nazwa: 'Sum japoński', nazwa_lacinska: 'Silurus asotus', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 70, max_dlugosc: 120, sila: 5213, kat: 5.70145868281386,Strefa: 'Rzeki'},
+        {nazwa: 'Sum kanałowy', nazwa_lacinska: 'Ictalurus punctatus', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 50, max_dlugosc: 100, sila: 2751, kat: 5.83196955348678,Strefa: 'Rzeki'},
+        {nazwa: 'Łosoś sockeye', nazwa_lacinska: 'Oncorhynchus nerka', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 60, max_dlugosc: 80, sila: 3792, kat: 5.61578741436111,Strefa: 'Rzeki'},
+        {nazwa: 'Pstrąg tęczowy', nazwa_lacinska: 'Oncorhynchus mykiss', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 40, max_dlugosc: 80, sila: 1792, kat: 5.84519291452774,Strefa: 'Rzeki'},
+        {nazwa: 'Sturgeon europejski', nazwa_lacinska: 'Acipenser sturio', tier: 9,cechy: 'denna', srednia_dlugosc: 200, max_dlugosc: 600, sila: 42157, kat: 5.94639364710636,Strefa: 'Rzeki'},
+        {nazwa: 'Łosoś różowy', nazwa_lacinska: 'Oncorhynchus gorbuscha', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 50, max_dlugosc: 70, sila: 2664, kat: 5.29599755962014,Strefa: 'Rzeki'},
+        {nazwa: 'Łosoś atlantycki (słodkowodny)', nazwa_lacinska: 'Salmo salar', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 150, sila: 6809, kat: 5.4757116927764,Strefa: 'Rzeki'},
+        {nazwa: 'Sterlet', nazwa_lacinska: 'Acipenser ruthenus', tier: 5,cechy: 'denna', srednia_dlugosc: 60, max_dlugosc: 120, sila: 3913, kat: 6.1692880830036,Strefa: 'Rzeki'},
+        {nazwa: 'Stynka', nazwa_lacinska: 'Osmerus eperlanus', tier: 2,cechy: 'ławicowa', srednia_dlugosc: 15, max_dlugosc: 25, sila: 273, kat: 5.64165292319569,Strefa: 'Rzeki'},
+        {nazwa: 'Sumik karłowaty', nazwa_lacinska: 'Ictalurus nebulosus', tier: 3,cechy: 'drapieżny', srednia_dlugosc: 20, max_dlugosc: 35, sila: 471, kat: 5.90741391666558,Strefa: 'Rzeki'},
+        {nazwa: 'Brzana pospolita', nazwa_lacinska: 'Barbus barbus', tier: 4,cechy: 'denna', srednia_dlugosc: 40, max_dlugosc: 80, sila: 1792, kat: 5.92999803513716,Strefa: 'Rzeki'},
+        {nazwa: 'Łosoś pacyficzny', nazwa_lacinska: 'Oncorhynchus keta', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 70, max_dlugosc: 100, sila: 5151, kat: 6.10485459332296,Strefa: 'Rzeki'},
+        {nazwa: 'Strzebla potokowa', nazwa_lacinska: 'Phoxinus phoxinus', tier: 1,cechy: 'ławicowa', srednia_dlugosc: 5, max_dlugosc: 8, sila: 37, kat: 5.82867513671707,Strefa: 'Rzeki'},
+        {nazwa: 'Głowacz pręgopłetwy', nazwa_lacinska: 'Cottus gobio', tier: 1,cechy: 'denna', srednia_dlugosc: 8, max_dlugosc: 12, sila: 84, kat: 6.11920944579799,Strefa: 'Rzeki'},
+        {nazwa: 'Miętus', nazwa_lacinska: 'Lota lota', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 40, max_dlugosc: 80, sila: 1792, kat: 5.91506557903648,Strefa: 'Rzeki'},
+        {nazwa: 'Sum amerykański', nazwa_lacinska: 'Ictalurus punctatus', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 50, max_dlugosc: 100, sila: 2751, kat: 5.75986831126741,Strefa: 'Rzeki'},
+        {nazwa: 'Sum europejski', nazwa_lacinska: 'Silurus glanis', tier: 8,cechy: 'drapieżny', srednia_dlugosc: 150, max_dlugosc: 300, sila: 23439, kat: 5.8487065350392,Strefa: 'Rzeki'},
+        {nazwa: 'Węgorz europejski', nazwa_lacinska: 'Anguilla anguilla', tier: 6,cechy: 'drapieżny wędrowny', srednia_dlugosc: 80, max_dlugosc: 150, sila: 6809, kat: 5.97070763541741,Strefa: 'Rzeki'},
+        {nazwa: 'Pstrąg potokowy', nazwa_lacinska: 'Salmo trutta', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 30, max_dlugosc: 80, sila: 1092, kat: 5.96356027396857,Strefa: 'Rzeki'},
+        {nazwa: 'Jesior', nazwa_lacinska: 'Acipenser baerii', tier: 8,cechy: 'denna', srednia_dlugosc: 150, max_dlugosc: 300, sila: 23439, kat: 5.51445169993845,Strefa: 'Rzeki'},
+        {nazwa: 'Amur czarny', nazwa_lacinska: 'Mylopharyngodon piceus', tier: 5,cechy: 'denna', srednia_dlugosc: 60, max_dlugosc: 120, sila: 3913, kat: 4.08339177909687,Strefa: 'Jeziora'},
+        {nazwa: 'Jaź', nazwa_lacinska: 'Leuciscus idus', tier: 4,cechy: 'wszystkożerna', srednia_dlugosc: 40, max_dlugosc: 80, sila: 1792, kat: 3.67535974482666,Strefa: 'Jeziora'},
+        {nazwa: 'Leszcz', nazwa_lacinska: 'Abramis brama', tier: 4,cechy: 'denna', srednia_dlugosc: 40, max_dlugosc: 70, sila: 1764, kat: 4.15127286520928,Strefa: 'Jeziora'},
+        {nazwa: 'Gar Lepisosteus', nazwa_lacinska: 'Lepisosteus osseus', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 150, sila: 6809, kat: 3.85832802360281,Strefa: 'Jeziora'},
+        {nazwa: 'Karaś srebrzysty', nazwa_lacinska: 'Carassius gibelio', tier: 3,cechy: 'denna', srednia_dlugosc: 25, max_dlugosc: 45, sila: 721, kat: 3.70970376430949,Strefa: 'Jeziora'},
+        {nazwa: 'Amur biały', nazwa_lacinska: 'Ctenopharyngodon idella', tier: 5,cechy: 'roślinożerna', srednia_dlugosc: 70, max_dlugosc: 120, sila: 5213, kat: 3.79219124599165,Strefa: 'Jeziora'},
+        {nazwa: 'Lin', nazwa_lacinska: 'Tinca tinca', tier: 3,cechy: 'denna', srednia_dlugosc: 30, max_dlugosc: 60, sila: 1036, kat: 3.61613240186665,Strefa: 'Jeziora'},
+        {nazwa: 'Boleń', nazwa_lacinska: 'Leuciscus aspius', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 50, max_dlugosc: 120, sila: 2813, kat: 3.74658647579607,Strefa: 'Jeziora'},
+        {nazwa: 'Karp', nazwa_lacinska: 'Cyprinus carpio', tier: 4,cechy: 'denna wszystkożerna', srednia_dlugosc: 50, max_dlugosc: 100, sila: 2751, kat: 3.35000282211869,Strefa: 'Jeziora'},
+        {nazwa: 'Okoń europejski', nazwa_lacinska: 'Perca fluviatilis', tier: 3,cechy: 'drapieżny', srednia_dlugosc: 25, max_dlugosc: 50, sila: 734, kat: 3.7477251281431,Strefa: 'Jeziora'},
+        {nazwa: 'Gar jaszczurczy', nazwa_lacinska: 'Lepisosteus platyrhincus', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 70, max_dlugosc: 120, sila: 5213, kat: 3.15308009415764,Strefa: 'Jeziora'},
+        {nazwa: 'Gar długonosy', nazwa_lacinska: 'Lepisosteus platostomus', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 70, max_dlugosc: 120, sila: 5213, kat: 3.76135941554158,Strefa: 'Jeziora'},
+        {nazwa: 'Białoryb', nazwa_lacinska: 'Hypophthalmichthys nobilis', tier: 5,cechy: 'filtrator', srednia_dlugosc: 80, max_dlugosc: 140, sila: 6776, kat: 3.70085042723509,Strefa: 'Jeziora'},
+        {nazwa: 'Szczupak amerykański', nazwa_lacinska: 'Esox masquinongy', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 80, max_dlugosc: 180, sila: 6909, kat: 3.72931020919101,Strefa: 'Jeziora'},
+        {nazwa: 'Srebrzyk', nazwa_lacinska: 'Hypophthalmichthys molitrix', tier: 5,cechy: 'filtrator', srednia_dlugosc: 70, max_dlugosc: 120, sila: 5213, kat: 3.4976391388158,Strefa: 'Jeziora'},
+        {nazwa: 'Szczupak pospolity', nazwa_lacinska: 'Esox lucius', tier: 5,cechy: 'drapieżny', srednia_dlugosc: 60, max_dlugosc: 150, sila: 4009, kat: 3.25762155799787,Strefa: 'Jeziora'},
+        {nazwa: 'Szczupak pospolity (duży)', nazwa_lacinska: 'Esox lucius', tier: 6,cechy: 'drapieżny', srednia_dlugosc: 100, max_dlugosc: 150, sila: 10409, kat: 3.9065808201471,Strefa: 'Jeziora'},
+        {nazwa: 'Okoń amerykański', nazwa_lacinska: 'Micropterus salmoides', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 40, max_dlugosc: 70, sila: 1764, kat: 4.10290915325279,Strefa: 'Jeziora'},
+        {nazwa: 'Karaś złocisty', nazwa_lacinska: 'Carassius carassius', tier: 3,cechy: 'denna', srednia_dlugosc: 25, max_dlugosc: 40, sila: 709, kat: 3.59834049398574,Strefa: 'Jeziora'},
+        {nazwa: 'Wzdręga', nazwa_lacinska: 'Scardinius erythrophthalmus', tier: 3,cechy: 'ławicowa', srednia_dlugosc: 20, max_dlugosc: 40, sila: 484, kat: 4.129417409301,Strefa: 'Jeziora'},
+        {nazwa: 'Księżniczka Burundi', nazwa_lacinska: 'Neolamprologus brichardi', tier: 1,cechy: 'terytorialna', srednia_dlugosc: 8, max_dlugosc: 10, sila: 80, kat: 3.54801183150813,Strefa: 'Jeziora'},
+        {nazwa: 'Ukleja', nazwa_lacinska: 'Alburnus alburnus', tier: 2,cechy: 'ławicowa', srednia_dlugosc: 12, max_dlugosc: 20, sila: 180, kat: 3.60845244984391,Strefa: 'Jeziora'},
+        {nazwa: 'Karp koi', nazwa_lacinska: 'Cyprinus carpio koi', tier: 5,cechy: 'denna ozdobna', srednia_dlugosc: 60, max_dlugosc: 90, sila: 3821, kat: 3.95856889785742,Strefa: 'Jeziora'},
+        {nazwa: 'Kleń', nazwa_lacinska: 'Squalius cephalus', tier: 4,cechy: 'wszystkożerna', srednia_dlugosc: 30, max_dlugosc: 80, sila: 1092, kat: 3.79592210249055,Strefa: 'Jeziora'},
+        {nazwa: 'Lin złoty', nazwa_lacinska: 'Tinca tinca aurata', tier: 3,cechy: 'denna', srednia_dlugosc: 30, max_dlugosc: 60, sila: 1036, kat: 3.79216444398616,Strefa: 'Jeziora'},
+        {nazwa: 'Bass małogębowy', nazwa_lacinska: 'Micropterus dolomieu', tier: 3,cechy: 'drapieżny', srednia_dlugosc: 30, max_dlugosc: 50, sila: 1009, kat: 3.7078528681157,Strefa: 'Jeziora'},
+        {nazwa: 'Sandacz', nazwa_lacinska: 'Sander lucioperca', tier: 4,cechy: 'drapieżny', srednia_dlugosc: 50, max_dlugosc: 100, sila: 2751, kat: 3.4349814800509,Strefa: 'Jeziora'},
+        {nazwa: 'Czebaczek amurski', nazwa_lacinska: 'Pseudorasbora parva', tier: 1,cechy: 'inwazyjna', srednia_dlugosc: 5, max_dlugosc: 8, sila: 37, kat: 4.01430396104311,Strefa: 'Jeziora'},
+    ]
+        // Konwersja radianów na stopnie
+        const r_values = rawData.map(d => d.tier);
+        const theta_values = rawData.map(d => d.kat * (180.0 / Math.PI));
+        const labels = rawData.map(d => d.nazwa);
+        const hover_texts = rawData.map(d => `<b>${d.nazwa}</b><br>Lac: ${d.nazwa_lacinska}</br>Strefa: ${d.Strefa}<br>Tier: ${d.tier}</b><br>Cechy: ${d.cechy}</br><b>Srednia dlugosc: ${d.srednia_dlugosc}, Max dlugosc: ${d.max_dlugosc}</br>Sila: ${d.sila}</br>Kat: ${d.kat * (180.0 / Math.PI)}`);
+
+        const trace = {
+            r: r_values,
+            theta: theta_values,
+            mode: 'markers',
+            type: 'scatterpolar',
+            text: labels,
+            hoverinfo: 'text',
+            hovertext: hover_texts,
+            marker: {
+                size: 8,
+                color: r_values,
+                colorscale: 'Plasma',
+                showscale: true,
+                colorbar: {
+                    title: 'Tier',
+                    titleside: 'top',
+                    tickmode: 'linear',
+                    tick0: 0,
+                    dtick: 1
+                },
+                line: {
+                    color: '#ffffff',
+                    width: 0.5
+                },
+                opacity: 0.9
+            }
+        };
+
+        const layout = {
+            backgroundColor: '#161625',
+            paper_bgcolor: '#161625',
+            plot_bgcolor: '#161625',
+            polar: {
+                backgroundcolor: '#1f1f38',
+                angularaxis: {
+                    direction: 'clockwise',
+                    period: 360,
+                    visible: true,
+                    tickfont: { color: '#a0a0ba' },
+                    gridcolor: '#3d3d5c'
+                },
+                radialaxis: {
+                    tickfont: { color: '#a0a0ba' },
+                    gridcolor: '#3d3d5c',
+                    angle: 0,
+                    tickangle: 0,
+                    showline: true,
+                    linecolor: '#5c5c8a',
+                    range: [0, 16] // Skala dostosowana do maksymalnego tieru 15
+                }
+            },
+            font: {
+                color: '#ffffff'
+            },
+            showlegend: false,
+            margin: { l: 50, r: 50, t: 40, b: 40 }
+        };
+
+        Plotly.newPlot('plotly-chart', [trace], layout, {responsive: true});
+    </script>
+</body>
+</html>
